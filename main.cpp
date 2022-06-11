@@ -110,7 +110,7 @@ void fwdSelect(data training_set, int ft) {
     for(int i=0;i<100000;i++){
         ftlist[i]=i;
     }
-    cout << endl << "Searched complete." << endl;
+    cout << endl << "Search completed." << endl;
     cout << "The final best set : ";
     int ct=0;
     for(int i=0;i<10000;i++)
@@ -165,22 +165,23 @@ void bkdSelect(data t_set, int totalFtr) {
                  int index = k+1;
                  tmpLocal.erase(tmpLocal.begin() + index-1);
                 tmp.v.erase(tmp.v.begin() + index);
-                cout << "Testing ";
+                cout << "Using the feature ";cout<<" {";
                 for( int i = 0; i < tmpLocal.size(); i++) {
                     cout << tmpLocal[i] << " ";
                 }
+                cout<<"} ";
                 data n; n = tmp;
                 precision = checkFunc(n);
-                cout << "Accuracy: " << precision << endl;
+                cout << "accuracy: " << precision << endl;
                 if(precision >= localmax) { localmax = precision; tmpMax = tmpLocal; }
         }
         lbst = tmpMax;
-        cout << "Best feature set : ";cout<<" {";
+        cout << "The best feature set is : ";cout<<" {";
         for( int i = 0; i < lbst.size(); i++) {
             cout << lbst[i] << " ";
         }
         cout<<"} ";
-        cout << " has accuracy of " << localmax << "%" << endl;
+        cout << " with an accuracy of " << localmax << "%" << endl;
 
         if(localmax > global) {
             s = lbst.size();
@@ -191,7 +192,7 @@ void bkdSelect(data t_set, int totalFtr) {
         }
         i++;
     }
-    cout << endl << "Searche complete." << endl;
+    cout << endl << "Search completed." << endl;
     cout << "The final best set is: ";
     i = 0;
     cout<<" {";
@@ -246,9 +247,9 @@ int main() {
     int numFeatures = t_set.v.size() - 1;
 	cout << "Total instances: " << (t_set.v)[0].size() << endl;
 	cout << "Total features: " << numFeatures << endl;
-	cout << "Running nearest neighbor with all " << numFeatures << " features, using \"leave one out\" evaluation, accuracy is ";
+	cout << "Running nearest neighbor with all the features, using \"leave one out\" evaluation, accuracy is ";
 	data n;n.v = t_set.v;
-	cout << checkFunc(n) << "--" << endl;
+	cout << checkFunc(n) << "%" << endl;
 
 	switch(algo){
         case 1:fwdSelect(t_set, numFeatures);
