@@ -5,20 +5,28 @@ using namespace std;
 class data{
 
     public:
-    vector< vector< long double> > v;
+    vector< vector< double> > v;
     int featureList;
     int totalFeatures;
 };
 clock_t start;
 
-float checkFunc(data feat) {
+void printFunc(vector<int>tmpLocal){
+    cout << "Using the feature ";cout<<" {";
+    for( int i = 0; i < tmpLocal.size(); i++) {
+        cout << tmpLocal[i] << " ";
+    }
+    cout<<"} ";
+}
+
+float checkFuncAndNearestNeigh(data feat) {
     data subs;
     int c = 0;int i = 0;
     while(i < (feat.v)[0].size()) {
             int j = 0;int a=0;
-            long double iCheck[100003];
+            double iCheck[100003];
         while(j < feat.v.size()) {
-            vector<long double> tmp = feat.v[j];
+            vector<double> tmp = feat.v[j];
             iCheck[a++]=tmp[i];
             tmp.erase(tmp.begin() + i);
             subs.v.push_back(tmp);
@@ -26,13 +34,16 @@ float checkFunc(data feat) {
         }
         data n ;
         n.v = subs.v;
-        long double mDst = INT_MAX; int classf = iCheck[0];
+        double mDst = INT_MAX; int classf = iCheck[0];
         for(int i = 0; i < subs.v[0].size(); i++) {
-            long double d = 0.0;
+            double d = 0.0;
             for(int j = 1; j < subs.v.size(); j++) {
                 d = d + ((subs.v[j][i] - iCheck[j])*(subs.v[j][i] - iCheck[j]));
             }
-            if(d < mDst) { mDst = d; classf = (int)subs.v[0][i]; }
+            if(d < mDst) {
+                mDst = d;
+                classf = (int)subs.v[0][i];
+            }
         }
         if( (int)classf == (int)iCheck[0]) {
             c++;
@@ -40,8 +51,9 @@ float checkFunc(data feat) {
         subs.v.clear();
     	i++;
     }
-    float ans = ((float)c / (float)feat.v[0].size()) * 100;
-    return ans;
+    double z = (double)feat.v[0].size();
+    double ans = c / z;
+    return ans* 100;
 
 }
 
@@ -77,13 +89,11 @@ void fwdSelect(data training_set, int ft) {
 
                 tmp.v.push_back(training_set.v[j]);
                 tmpLocal.push_back(j);
-                cout << "Using the feature ";cout<<" {";
-                for(int i = 0; i < tmpLocal.size(); i++) {
-                    cout << tmpLocal[i] << " ";
-                }
-                cout<<"} ";
+
+                printFunc(tmpLocal);
+
                 data n; n = tmp;
-                precision = checkFunc(n);
+                precision = checkFuncAndNearestNeigh(n);
                 cout << "accuracy: " << precision << endl;
                 if(precision > localmax) {
                     localmax = precision; tmpMax = tmpLocal;
@@ -165,15 +175,16 @@ void bkdSelect(data t_set, int totalFtr) {
                  int index = k+1;
                  tmpLocal.erase(tmpLocal.begin() + index-1);
                 tmp.v.erase(tmp.v.begin() + index);
-                cout << "Using the feature ";cout<<" {";
-                for( int i = 0; i < tmpLocal.size(); i++) {
-                    cout << tmpLocal[i] << " ";
-                }
-                cout<<"} ";
+
+                printFunc(tmpLocal);
+
                 data n; n = tmp;
-                precision = checkFunc(n);
+                precision = checkFuncAndNearestNeigh(n);
                 cout << "accuracy: " << precision << endl;
-                if(precision >= localmax) { localmax = precision; tmpMax = tmpLocal; }
+                if(precision >= localmax) {
+                    localmax = precision;
+                    tmpMax = tmpLocal;
+                }
         }
         lbst = tmpMax;
         cout << "The best feature set is : ";cout<<" {";
@@ -207,8 +218,8 @@ int main() {
 
     string fname;
     int algo;
-    cout << "This is a Feature Selection Algorithm." << endl;
-    cout << "Name of file: " << endl;
+    cout << "This is a Feature Selection with Nearest Neighbor Algorithm." << endl;
+    cout << "Path of the data file: " << endl;
     cin >> fname;
     cout << "Select the algo to run." << endl;
     cout << "1) Forward Selection \n2) Backward Elimination" << endl;
@@ -224,8 +235,9 @@ int main() {
     stringstream sstream(z);
     string feature;
     while(sstream >> feature) {
-         vector <long double> feats;
-        feats.push_back(stold(feature));
+         vector <double> feats;
+         double s_d = stod(feature);
+        feats.push_back(s_d);
         t_set.v.push_back(feats);
     }
 
@@ -238,8 +250,10 @@ int main() {
         stringstream sstream(z);
         for(int i = 0; i < t_set.v.size(); i++) {
             string ft;
-            if( sstream >> ft)
-                (t_set.v)[i].push_back(stold(ft));
+            if( sstream >> ft){
+                double s_d = stod(ft);
+                (t_set.v)[i].push_back(s_d);
+            }
         }
     }
 
@@ -249,7 +263,7 @@ int main() {
 	cout << "Total features: " << numFeatures << endl;
 	cout << "Running nearest neighbor with all the features, using \"leave one out\" evaluation, accuracy is ";
 	data n;n.v = t_set.v;
-	cout << checkFunc(n) << "%" << endl;
+	cout << checkFuncAndNearestNeigh(n) << "%" << endl;
 
 	switch(algo){
         case 1:fwdSelect(t_set, numFeatures);
